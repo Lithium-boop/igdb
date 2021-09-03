@@ -1,12 +1,12 @@
 import { FETCH_GAME, FETCH_GAMES } from '../constants/actionTypes'
 
-const gamesReducer = (state = { game: null }, action) => {
+const gamesReducer = (state = { games: null, game: null }, action) => {
   switch (action.type) {
     case FETCH_GAME:
-      return { game: action.payload }
+      return { ...state, game: action.payload }
 
     case FETCH_GAMES:
-      return { games: action.payload }
+      return { ...state, games: action.payload }
 
     default:
       return state

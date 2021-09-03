@@ -13,9 +13,9 @@ export const getGame = (id) => async (dispatch) => {
   }
 }
 
-export const getGames = (limit) => async (dispatch) => {
+export const getGames = (limit, searchQuery) => async (dispatch) => {
   try {
-    const { data } = await api.fetchGames(limit)
+    const { data } = await api.fetchGames(limit, searchQuery)
 
     dispatch({ type: FETCH_GAMES, payload: { data } })
   } catch (error) {

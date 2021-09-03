@@ -21,14 +21,9 @@ const Game = () => {
     dispatch(getGame(id))
   }, [id, dispatch])
 
-  if (!game) return game
+  if (!game) return null
 
   return (
-    // <>
-    // <h1>{game.name}</h1>
-    // <img src={game.coverUrl} alt="cover" />
-    // <p>{game.summary}</p>
-    // </>
     <Card>
       <CardActionArea>
         <CardMedia

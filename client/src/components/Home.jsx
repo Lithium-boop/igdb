@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useHistory } from 'react-router-dom'
 
 import { makeStyles } from '@material-ui/core/styles'
 import { Container, Grid, Card, CardMedia } from '@material-ui/core'
 
-import { getGames } from '../actions/games'
+import { getGames, getGame } from '../actions/games'
+
+import SearchBar from './SearchBar'
 
 const useStyles = makeStyles((theme) => ({
   cardGrid: {
@@ -19,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   CardMedia: {
     paddingTop: '56.25%',
+    cursor: 'pointer',
   },
 }))
 
@@ -29,13 +32,33 @@ function useQuery() {
 const Home = () => {
   const { games: data } = useSelector((state) => state.games)
   const dispatch = useDispatch()
+  const history = useHistory()
   const query = useQuery()
 
   const limit = query.get('limit') || 9
+  const searchQuery = query.get('searchQuery') || ''
+
+  const [search, setSearch] = useState('')
+
+  const gameDetails = async (id) => {
+    await history.push(`/games/${id}`)
+    dispatch(getGame(id))
+  }
+
+  const searchGames = () => {
+    dispatch(getGames(limit, search))
+    history.push(`/games?limit=${limit}&searchQuery=${search}`)
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      searchGames()
+    }
+  }
 
   useEffect(() => {
-    dispatch(getGames(limit))
-  }, [limit, dispatch])
+    dispatch(getGames(limit, searchQuery))
+  }, [dispatch, searchQuery, limit])
 
   const classes = useStyles()
 
@@ -43,13 +66,18 @@ const Home = () => {
 
   return (
     <Container className={classes.cardGrid} maxWidth="md">
+      <SearchBar
+        handleKeyPress={handleKeyPress}
+        search={search}
+        setSearch={setSearch}
+      />
       <Grid container spacing={4}>
-        {Object.values(data)[0].map((cover) => (
-          <Grid item key={cover.game} xs={12} sm={6} md={4}>
-            <Card className={classes.card}>
+        {Object.values(data)[0].map((game) => (
+          <Grid item key={game.id} xs={12} sm={6} md={4}>
+            <Card className={classes.card} onClick={() => gameDetails(game.id)}>
               <CardMedia
                 className={classes.CardMedia}
-                image={`${cover.url}`.replace('thumb', 'cover_big')}
+                image={`${game.cover.url}`.replace('thumb', '1080p')}
                 title="game"
               />
             </Card>

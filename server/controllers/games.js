@@ -28,10 +28,7 @@ export const getGame = async (req, res) => {
     })
 
     const game = JSON.parse(gameResponse)[0]
-    const coverUrl = JSON.parse(coverResponse)[0].url.replace(
-      'thumb',
-      'cover_big',
-    )
+    const coverUrl = JSON.parse(coverResponse)[0].url.replace('thumb', '1080p')
     res.status(200).json({ ...game, coverUrl })
   } catch (error) {
     res.status(404).json({ message: error.message })
@@ -39,21 +36,23 @@ export const getGame = async (req, res) => {
 }
 
 export const getGames = async (req, res) => {
-  const limit = req.query.limit
+  const { searchQuery, limit } = req.query
 
   try {
     const response = await request({
       method: 'POST',
-      uri: 'https://api.igdb.com/v4/covers/',
+      uri: 'https://api.igdb.com/v4/games/',
       headers: {
         'Client-ID': clientID,
         Authorization: `Bearer ${access_token}`,
       },
-      body: `fields game,url; limit ${limit || 9};`,
+      body:
+        `${searchQuery ? `search "${searchQuery}";` : ''}` +
+        `fields cover.url; where cover!=null; limit ${limit};`,
     })
 
-    const covers = JSON.parse(response)
-    res.status(200).json(covers)
+    const games = JSON.parse(response)
+    res.status(200).json(games)
   } catch (error) {
     res.status(404).json({ message: error.message })
   }
