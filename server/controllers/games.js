@@ -7,31 +7,22 @@ export const getGame = async (req, res) => {
   const { id } = req.params
 
   try {
-    const gameResponse = await request({
+    const response = await request({
       method: 'POST',
       uri: 'https://api.igdb.com/v4/games/',
       headers: {
         'Client-ID': clientID,
         Authorization: `Bearer ${access_token}`,
       },
-      body: `fields name,summary; where id=${id};`,
+      body: `fields name,summary,cover.url; where id=${id};`,
     })
 
-    const coverResponse = await request({
-      method: 'POST',
-      uri: 'https://api.igdb.com/v4/covers/',
-      headers: {
-        'Client-ID': clientID,
-        Authorization: `Bearer ${access_token}`,
-      },
-      body: `fields url; where game=${id};`,
-    })
-
-    const game = JSON.parse(gameResponse)[0]
-    const coverUrl = JSON.parse(coverResponse)[0].url.replace('thumb', '1080p')
+    const game = JSON.parse(response)[0]
+    const coverUrl = game.cover.url.replace('thumb', '1080p')
+    delete game['cover']
     res.status(200).json({ ...game, coverUrl })
   } catch (error) {
-    res.status(404).json({ message: error.message })
+    console.log({ message: error.message })
   }
 }
 
